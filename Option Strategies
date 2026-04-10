@@ -1,0 +1,76 @@
+# 🎰 Wheel / CSP Strategy
+
+Cash-secured puts and covered calls — separate from the equity research system.
+
+---
+
+## 🗂️ Structure
+
+```
+/csp/
+├── README.md                         ← This file
+├── templates/
+│   ├── csp_analysis.md               ← Pre-trade CSP candidate write-up
+│   └── csp_model.xlsx                ← Premium math, breakeven, annualized return
+└── trades/
+    └── TICKER_STRIKE_EXPIRY/
+        ├── csp_analysis.md
+        └── trade_log.md
+```
+
+---
+
+## 🎯 CSP Candidate Criteria
+
+A ticker earns a **CSP candidate** rating when:
+
+- [ ] Price < $20 (accessible capital for 1 contract = 100 shares)
+- [ ] Elevated implied volatility (IV Rank > 30 or IV% > 50th percentile)
+- [ ] Liquid options market (bid/ask spread < $0.05 on target strikes)
+- [ ] Business not in freefall — would hold 100 shares if assigned
+- [ ] Strike at or below meaningful technical support
+- [ ] Annualized premium return ≥ 20% on capital at risk
+
+---
+
+## ⚙️ Strategy Rules
+
+| Rule | Detail |
+|---|---|
+| Strike selection | At or below S1 support / 10–15% OTM minimum |
+| Expiry | 21–45 DTE (theta sweet spot) |
+| 50% rule | Close at 50% max profit — don't ride to expiration |
+| Roll trigger | If tested with >7 DTE, evaluate roll down/out |
+| Assignment | If assigned, transition to covered call at or above cost basis |
+| Position size | Max 1 contract per ticker unless high conviction |
+
+---
+
+## 📐 Key Formulas
+
+```
+Max Profit        = Premium Collected × 100
+Breakeven         = Strike – Premium
+Capital at Risk   = (Strike – Premium) × 100
+Annualized Return = (Premium / Capital at Risk) × (365 / DTE)
+50% Close Target  = Entry Premium × 0.50
+```
+
+---
+
+## 🎰 Active / Closed Trades
+
+| Ticker | Strike | Expiry | Premium | DTE | Ann. Return | Status |
+|---|---|---|---|---|---|---|
+| — | — | — | — | — | — | — |
+
+---
+
+## 🔗 Related
+
+- [Equity Analyses](../analyses/) — full research on underlying stocks
+- [Main README](../README.md)
+
+---
+*Built for personal use · Not financial advice · Options involve risk of loss*
+EOF

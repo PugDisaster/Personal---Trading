@@ -1,76 +1,436 @@
-# 🎰 Wheel / CSP Strategy
-
-Cash-secured puts and covered calls — separate from the equity research system.
-
----
-
-## 🗂️ Structure
-
-```
-/csp/
-├── README.md                         ← This file
-├── templates/
-│   ├── csp_analysis.md               ← Pre-trade CSP candidate write-up
-│   └── csp_model.xlsx                ← Premium math, breakeven, annualized return
-└── trades/
-    └── TICKER_STRIKE_EXPIRY/
-        ├── csp_analysis.md
-        └── trade_log.md
-```
+# $TICKER — Covered Call Analysis
+**Date:** YYYY-MM-DD
+**Shares Held:** 100 (1 contract)
+**Cost Basis:** $XX.XX (effective, after any CSP premium)
+**Current Price:** $XX.XX
+**Strike:** $XX.XX
+**Expiry:** YYYY-MM-DD
+**DTE:** XX days
+**Premium (mid):** $X.XX ($XXX total)
+**Origin:** Post-CSP Assignment / Direct Share Purchase
+**Decision:** ✅ SELL CC / ⚠️ WAIT / ❌ HOLD SHARES
 
 ---
 
-## 🎯 CSP Candidate Criteria
+## 1. The Trade Setup
 
-A ticker earns a **CSP candidate** rating when:
-
-- [ ] Price < $20 (accessible capital for 1 contract = 100 shares)
-- [ ] Elevated implied volatility (IV Rank > 30 or IV% > 50th percentile)
-- [ ] Liquid options market (bid/ask spread < $0.05 on target strikes)
-- [ ] Business not in freefall — would hold 100 shares if assigned
-- [ ] Strike at or below meaningful technical support
-- [ ] Annualized premium return ≥ 20% on capital at risk
-
----
-
-## ⚙️ Strategy Rules
-
-| Rule | Detail |
+| Field | Value |
 |---|---|
-| Strike selection | At or below S1 support / 10–15% OTM minimum |
-| Expiry | 21–45 DTE (theta sweet spot) |
-| 50% rule | Close at 50% max profit — don't ride to expiration |
-| Roll trigger | If tested with >7 DTE, evaluate roll down/out |
-| Assignment | If assigned, transition to covered call at or above cost basis |
-| Position size | Max 1 contract per ticker unless high conviction |
+| Shares held | 100 |
+| Cost basis (effective) | $XX.XX |
+| Current price | $XX.XX |
+| Unrealized P&L on shares | +/−$XXX (XX%) |
+| Strike (call) | $XX.XX |
+| OTM Distance | +XX% above current price |
+| DTE | XX days |
+| Premium Collected | $X.XX / share ($XXX per contract) |
+| Max Profit (called away) | $XXX = (strike − cost basis + premium) × 100 |
+| Max Profit (expires worthless) | $XXX = premium only |
+| Breakeven (downside) | $XX.XX (cost basis − premium) |
+| Return if Called Away | XX% on cost basis (XX% annualized) |
+| Return if Expires Worthless | XX% on cost basis (XX% annualized) |
+| 50% Close Target | $X.XX (buy back at this price) |
+| Delta (approx) | +0.XX (~XX% prob ITM / called away) |
 
 ---
 
-## 📐 Key Formulas
+## 2. Liquidity Check
 
-```
-Max Profit        = Premium Collected × 100
-Breakeven         = Strike – Premium
-Capital at Risk   = (Strike – Premium) × 100
-Annualized Return = (Premium / Capital at Risk) × (365 / DTE)
-50% Close Target  = Entry Premium × 0.50
-```
+| Metric | Value | Verdict |
+|---|---|---|
+| Avg Daily Volume | XXM shares | Good / Low / Thin |
+| Options Open Interest (target strike) | XXX contracts | Good / Low / Thin |
+| Bid / Ask Spread | $X.XX – $X.XX ($X.XX wide) | Tight / Acceptable / Wide |
+| Mid Price | $X.XX | Fill target |
+| Can exit early cleanly? | Yes / No / Risky | |
 
 ---
 
-## 🎰 Active / Closed Trades
+## 3. IV & Premium Assessment
 
-| Ticker | Strike | Expiry | Premium | DTE | Ann. Return | Status |
+| Metric | Value |
+|---|---|
+| Current IV | XX% |
+| IV Rank (IVR) | XX (0–100) |
+| 52-Week IV Range | XX% – XX% |
+| 1σ Expected Move (DTE) | ±$X.XX (±XX%) |
+| Is IV elevated enough to sell? | Yes / No / Neutral |
+
+**Premium Assessment:**
+> _Is the premium fat enough? For CCs, you want IV elevated to collect meaningful premium, but not so elevated that it signals a big move incoming that would rip through your strike._
+
+---
+
+## 4. Strike Selection Analysis
+
+> _The key tension: strike high enough to allow upside, low enough to collect real premium._
+
+| Strike Option | Price | OTM% | Premium | Ann. Return | Notes |
+|---|---|---|---|---|---|
+| Aggressive | $XX.XX | +XX% | $X.XX | XX% | Caps more upside |
+| Base (chosen) | $XX.XX | +XX% | $X.XX | XX% | ← selected |
+| Conservative | $XX.XX | +XX% | $X.XX | XX% | Less premium, more upside room |
+
+**Resistance levels above current price:**
+
+| Level | Price | Type | Notes |
+|---|---|---|---|
+| R1 | $XX.XX | Prior high / round number | Strike here = likely to get called |
+| R2 | $XX.XX | Gap resistance | |
+| 200-Day SMA | $XX.XX | If below price | |
+
+**Strike sits:** Below R1 (room to run) / At R1 (likely called) / Above R1 (premium thin)
+
+**Strike rationale:**
+> _Why this specific strike? Is it above resistance (stock likely stays below = premium capture) or below resistance (risk of cap)?_
+
+---
+
+## 5. Historical Upside Check
+
+> _How often does this ticker rally X% in Y days? If it rallies past your strike you get called away — is that OK?_
+
+**Required move to breach strike:** +XX% from current price
+
+| Timeframe | Avg Up Move | Max Up Move | Would breach strike? |
+|---|---|---|---|
+| Last 5 days | +XX% | +XX% | Yes / No |
+| Last 10 days | +XX% | +XX% | Yes / No |
+| Last 20 days | +XX% | +XX% | Yes / No |
+| Worst upside miss (6mo) | +XX% | +XX% | Yes / No |
+
+**Being called away is:** Fine (happy with the return) / Bad (want to keep shares) / Uncertain
+
+---
+
+## 6. Earnings & Catalyst Check
+
+**Next Earnings Date:** YYYY-MM-DD
+**Expiry vs. Earnings:** Expires BEFORE / AFTER / ON earnings
+
+| Item | Detail | Impact on CC |
+|---|---|---|
+| Earnings overlap? | Yes / No | Post-earnings IV crush = bad for premium; gap up = get called away |
+| Implied earnings move | ±XX% | |
+| Historical earnings reactions | Avg ±XX%, best +XX% | |
+| Ex-dividend date | YYYY-MM-DD or N/A | Sell CC post-ex-div to keep dividend |
+
+**Earnings Strategy:**
+> _For CCs specifically: selling before earnings captures elevated IV but risks a big gap up blowing through your strike. Generally safer to wait until after earnings print, then sell into the IV crush at a higher stock price if it beat._
+
+---
+
+## 7. Cost Basis Recovery Plan
+
+> _How many CC cycles does it take to get to breakeven or target return?_
+
+| Cycle | Premium | Cumulative Premium | Adjusted Cost Basis |
+|---|---|---|---|
+| Original cost basis | — | — | $XX.XX |
+| CC Cycle 1 | $X.XX | $X.XX | $XX.XX |
+| CC Cycle 2 | $X.XX | $XX.XX | $XX.XX |
+| CC Cycle 3 | $X.XX | $XX.XX | $XX.XX |
+| Breakeven | — | $XX.XX total needed | $XX.XX |
+
+**Cycles to breakeven:** ~X cycles at current premium rate
+**Time to breakeven (est):** ~X weeks / months
+
+---
+
+## 8. Called Away Scenario
+
+| Scenario | Detail |
+|---|---|
+| Called away price | $XX.XX (strike) |
+| Cost basis | $XX.XX |
+| Premium collected | $X.XX |
+| Total P&L if called | +$XXX (XX% on cost basis) |
+| Happy with this outcome? | Yes / No |
+| Plan if called away | Start new CSP at $XX / Buy shares back / Move on |
+
+**If called away, what's next?**
+> _Would you re-enter with a new CSP? At what strike? Or is this a position you want to hold long-term and getting called away is a bad outcome?_
+
+---
+
+## 9. Roll vs. Close Decision Framework
+
+| Situation | Action |
+|---|---|
+| At 50% profit | Close — buy back CC, redeploy |
+| Stock rallying toward strike with >7 DTE | Consider rolling up and out (higher strike, later expiry) |
+| Stock rallying through strike near expiry | Let it get called away OR roll out aggressively |
+| Stock dropping sharply | CC expires worthless, sell new CC lower — more premium |
+| Earnings approaching after open | Close early or roll past earnings |
+
+---
+
+## 10. Trade Decision
+
+### Checklist
+- [ ] IV is elevated enough for meaningful premium
+- [ ] Strike is above key resistance (or accepted capping risk)
+- [ ] No earnings in the window (or risk explicitly accepted)
+- [ ] Getting called away at this strike is an acceptable outcome
+- [ ] Annualized return ≥20% on cost basis
+- [ ] Liquidity is acceptable
+- [ ] Cost basis recovery plan is realistic
+
+**Decision:** ✅ SELL CC / ⚠️ WAIT / ❌ HOLD SHARES ONLY
+
+**Rationale:**
+> _One paragraph. Why this strike, this DTE, this premium?_
+
+**Management plan:**
+- 50% profit → buy back CC at $X.XX, sell new CC
+- Roll trigger → if stock approaches strike with >7 DTE, roll up/out to $XX strike, YYYY-MM-DD expiry
+- If called away → [plan for re-entry]
+
+---
+
+## 11. Outcome Log
+
+| Date | Event | Action | P&L |
+|---|---|---|---|
+| YYYY-MM-DD | Opened CC | Sold $XX call, $X.XX premium | +$XXX |
+| YYYY-MM-DD | 50% hit | Bought back at $X.XX, sold new CC | +$XX realized |
+| YYYY-MM-DD | Closed / Expired / Called Away | | Final: +/−$XXX |
+
+---
+*📊 [`cc_model.xlsx`](../templates/cc_model.xlsx) · 📝 [`trade_log.md`](trade_log.md)*
+
+# $TICKER — Cash-Secured Put Analysis
+**Date:** YYYY-MM-DD
+**Underlying:** $TICKER (or underlying if leveraged ETF)
+**Current Price:** $XX.XX
+**Strike:** $XX.XX
+**Expiry:** YYYY-MM-DD
+**DTE:** XX days
+**Premium (mid):** $X.XX ($XXX total)
+**Decision:** ✅ TAKE IT / ⚠️ WAIT / ❌ PASS
+
+---
+
+## 1. The Trade Setup
+
+| Field | Value |
+|---|---|
+| Strike | $XX.XX |
+| OTM Distance | XX% below current price |
+| DTE | XX days |
+| Premium Collected | $X.XX / share ($XXX per contract) |
+| Capital Required | $X,XXX (strike × 100) |
+| Max Profit | $XXX (premium, if expires worthless) |
+| Breakeven | $XX.XX (strike − premium) |
+| Return if Expired Worthless | XX% (XX% annualized) |
+| 50% Close Target | $X.XX (buy back at this price) |
+| Delta (approx) | −0.XX (~XX% prob ITM) |
+
+---
+
+## 2. Liquidity Check
+
+| Metric | Value | Verdict |
+|---|---|---|
+| Avg Daily Volume | XXM shares | Good / Low / Thin |
+| Options Open Interest (target strike) | XXX contracts | Good / Low / Thin |
+| Bid / Ask Spread | $X.XX – $X.XX ($X.XX wide) | Tight / Acceptable / Wide |
+| Mid Price | $X.XX | Fill target |
+| Can exit early cleanly? | Yes / No / Risky | |
+
+**Liquidity Summary:**
+> _Is this liquid enough to fill at mid and exit early if needed? Flag any concerns._
+
+---
+
+## 3. IV & Premium Assessment
+
+| Metric | Value |
+|---|---|
+| Current IV | XX% |
+| IV Rank (IVR) | XX (0–100) |
+| 52-Week IV Range | XX% – XX% |
+| IV Percentile | XX% |
+| 1σ Expected Move (DTE) | ±$X.XX (±XX%) |
+| Is IV elevated? | Yes / No / Neutral |
+
+**Premium Assessment:**
+> _Is IV high enough to justify selling? Compare to IV rank — ideally IVR >30. For leveraged ETFs, IV is structurally elevated so assess relative to its own range._
+
+**Annualized Return:** XX% — Fat / Fair / Thin for the risk taken
+
+---
+
+## 4. Support & Resistance Map
+
+> _Is the strike near support or in open air?_
+
+| Level | Price | Type | Strength |
+|---|---|---|---|
+| Current Price | $XX.XX | — | — |
+| Strike | $XX.XX | Your put strike | — |
+| S1 | $XX.XX | Prior low / 200-day / gap fill | Strong / Medium |
+| S2 | $XX.XX | | |
+| S3 | $XX.XX | | |
+| 200-Day SMA | $XX.XX | Key MA | Strong |
+| 75-Day SMA | $XX.XX | Key MA | Medium |
+| 52-Week Low | $XX.XX | Hard floor reference | Strong |
+
+**Is your strike at or above a support level?** Yes / No / Close
+
+**Strike quality:**
+> _Describe where the strike sits technically. Is it below a strong support, at support, or in no-man's land? A strike sitting just above S1 is ideal._
+
+---
+
+## 5. Historical Drawdown Check
+
+> _How often has this ticker dropped X% in Y days historically?_
+
+**Required move to breach strike:** −XX% from current price
+
+| Timeframe | Max Drawdown | Did it breach your strike? |
+|---|---|---|
+| Last 5 trading days | −XX% | Yes / No |
+| Last 10 trading days | −XX% | Yes / No |
+| Last 20 trading days | −XX% | Yes / No |
+| Last 30 trading days | −XX% | Yes / No |
+| Worst single week (1yr) | −XX% | Yes / No |
+| Worst single month (1yr) | −XX% | Yes / No |
+
+**Historical breach frequency (estimated):** ~X out of last XX similar windows
+**Conclusion:** Strike is rarely / sometimes / often breached in this timeframe
+
+---
+
+## 6. Earnings & Catalyst Check
+
+**Next Earnings Date:** YYYY-MM-DD
+**Expiry vs. Earnings:** Expires BEFORE / AFTER / ON earnings
+
+| Item | Detail | Impact |
+|---|---|---|
+| Earnings overlap? | Yes / No | High risk if yes — IV crush or gap down |
+| Implied earnings move | ±XX% | |
+| Historical earnings reactions | Avg ±XX%, worst −XX% | |
+| Ex-dividend date | YYYY-MM-DD or N/A | Minor impact |
+| Any macro events in window? | FOMC / CPI / Other | |
+
+**Earnings Risk:**
+> _If expiry is after earnings: what's the worst-case drop? Does your strike survive the implied move? If expiry is before earnings: you're capturing IV but not taking earnings risk — ideal._
+
+---
+
+## 7. Leveraged ETF Considerations
+*(Skip if not a leveraged ETF)*
+
+| Metric | Value |
+|---|---|
+| Underlying ticker | $UNDERLYING |
+| Leverage factor | Xx |
+| Underlying move to breach strike | −XX% (strike OTM% ÷ leverage) |
+| Underlying 52-week low | $XX.XX |
+| ETF floor estimate (approx) | $XX.XX |
+| Volatility decay risk (X DTE) | Low / Medium / High |
+
+**Decay note:**
+> _For leveraged ETFs held over time, vol decay erodes value beyond the pure 2x/3x math. Over 7–14 DTE this is minimal; over 30+ DTE it becomes meaningful. Flag if DTE is long._
+
+---
+
+## 8. Assignment Scenario
+
+**If assigned, would you hold 100 shares at the strike?**
+
+| Scenario | Detail |
+|---|---|
+| Assigned price | $XX.XX |
+| Effective cost basis (after premium) | $XX.XX |
+| Current price at assignment | ~$XX.XX |
+| Unrealized loss at assignment | −$XXX (XX%) |
+| Can you sell a CC to recover? | Yes / No |
+| Comfortable holding this position? | Yes / No |
+
+**Assignment comfort:**
+> _Is this a ticker you'd want to own at the strike price? If not, this trade is riskier than the numbers suggest. The wheel only works if you're OK with assignment._
+
+---
+
+## 9. Trade Decision
+
+### Checklist
+- [ ] Liquidity is acceptable (can fill at mid, can exit early)
+- [ ] IV is elevated enough to justify the premium
+- [ ] Strike is at or near a meaningful support level
+- [ ] Historical drawdown rarely breaches the strike in this DTE window
+- [ ] No earnings overlap (or earnings risk is priced in and accepted)
+- [ ] Comfortable owning shares if assigned
+- [ ] Annualized return is adequate for the risk (target ≥20%)
+
+**Items failing checklist:** ___
+
+**Decision:** ✅ TAKE IT / ⚠️ WAIT / ❌ PASS
+
+**Rationale:**
+> _One paragraph. Why are you taking or passing on this trade?_
+
+**Management plan:**
+- 50% profit → buy back at $X.XX, close trade
+- Roll trigger → if tested with >7 DTE, evaluate roll down/out to $XX strike
+- Assignment → transition to CC at $XX strike
+
+---
+
+## 10. Outcome Log
+
+| Date | Event | Action | P&L |
+|---|---|---|---|
+| YYYY-MM-DD | Opened | Sold $XX put, $X.XX premium | +$XXX |
+| YYYY-MM-DD | 50% hit | Bought back at $X.XX | +$XX realized |
+| YYYY-MM-DD | Closed / Expired / Assigned | | Final: +/−$XXX |
+
+---
+*📊 [`csp_model.xlsx`](../templates/csp_model.xlsx) · 📝 [`trade_log.md`](trade_log.md)*
+
+# $TICKER — Options Trade Log
+
+## Active Positions
+
+| Strategy | Strike | Expiry | DTE Open | Premium | 50% Target | Status |
 |---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — |
+| CSP | $XX | YYYY-MM-DD | XX | $X.XX | $X.XX | Open |
+| CC | $XX | YYYY-MM-DD | XX | $X.XX | $X.XX | Open |
 
 ---
 
-## 🔗 Related
+## Closed Trades
 
-- [Equity Analyses](../analyses/) — full research on underlying stocks
-- [Main README](../README.md)
+| # | Date Open | Date Close | Strategy | Strike | Expiry | Premium In | Premium Out | P&L | Return | Ann. Return | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | | | CSP | | | | | | | | |
+| 2 | | | CC | | | | | | | | |
 
 ---
-*Built for personal use · Not financial advice · Options involve risk of loss*
-EOF
+
+## Wheel Cycle Summary
+
+| Cycle # | Phase | Strike | Premium | Cost Basis After | Notes |
+|---|---|---|---|---|---|
+| 1 | CSP | $XX | $X.XX | $XX.XX | Initial entry |
+| 2 | CC (post-assign) | $XX | $X.XX | $XX.XX | |
+| 3 | CSP (re-entry) | $XX | $X.XX | — | Called away, restart |
+
+**Total premium collected:** $XXX
+**Effective cost basis:** $XX.XX
+**Net position P&L:** +/−$XXX
+
+---
+
+## Quick Reference
+
+**Ticker:** $TICKER
+**Shares held (if any):** 100 / 0
+**Current cost basis:** $XX.XX
+**Current price:** $XX.XX
+**Next earnings:** YYYY-MM-DD
+**Strategy status:** Running wheel / CSP only / CC only / Flat
